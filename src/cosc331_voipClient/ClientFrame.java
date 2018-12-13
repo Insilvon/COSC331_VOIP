@@ -20,16 +20,22 @@ import javax.sound.sampled.TargetDataLine;
 
 /**
  *
- * @author colin
+ * @author crcrowe0, emjetton0
  */
 public class ClientFrame extends javax.swing.JFrame {
-
-    
-    
-    
+    /**
+     * Sample Port (unused)
+     */
     public int serverPort = 4000;
+    /**
+     * Sample Address (unused)
+     */
     public String serverAddr = "127.0.0.1";
-    
+
+    /**
+     * method which will generate a new AudioFormat for the target computer to use.
+     * @return new AudioFormat
+     */
     public static AudioFormat getAudioFormat(){
         float sampleSize = 8000.0f;
         int sampleRate = 16;
@@ -123,12 +129,13 @@ public class ClientFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_startButtonActionPerformed
 
     private void endButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_endButtonActionPerformed
-        VoipClient.calling = false;
+        VoipClient.online = false;
         startButton.setEnabled(true);
         endButton.setEnabled(false);
     }//GEN-LAST:event_endButtonActionPerformed
     
     /**
+     * Auto-Generated
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -163,6 +170,11 @@ public class ClientFrame extends javax.swing.JFrame {
         });
     }
 
+    /**
+     * Method which will begin the process of establishing connection information, then will repeatedly send packets.
+     * @throws UnknownHostException
+     * @throws SocketException
+     */
     public void initializeAudioStream() throws UnknownHostException, SocketException {
         try{
             Scanner in = new Scanner(System.in);
@@ -170,7 +182,7 @@ public class ClientFrame extends javax.swing.JFrame {
             String ip = in.nextLine();
             System.out.println("What port to connect to?");
             int portNum = in.nextInt();
-            
+                                                                    //Get connection information
             
             
             AudioFormat format = getAudioFormat();
@@ -178,17 +190,18 @@ public class ClientFrame extends javax.swing.JFrame {
             if(!AudioSystem.isLineSupported(info)){
                 System.out.println("Currently not supported.");
                System.exit(0);
-            }
+            }                                                           //Make sure your device is supported by java
             audioInput = (TargetDataLine) AudioSystem.getLine(info);
             audioInput.open(format);
             audioInput.start();
-            ClientCapture r = new ClientCapture();
-//            InetAddress add = InetAddress.getByName(serverAddr);
+
+            ClientCapture r = new ClientCapture();              //setup the capturing file and begin getting data
             r.audioInput = audioInput;
-            r.dout = new DatagramSocket();
+            r.dataOutput = new DatagramSocket();
             r.serverPort = portNum;
             r.serverIP = InetAddress.getByName(ip);
-            VoipClient.calling = true;
+            VoipClient.online = true;                              //say we are actively recording
+
             r.start();
             startButton.setEnabled(false);
             endButton.setEnabled(true);
